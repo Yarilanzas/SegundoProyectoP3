@@ -1,6 +1,7 @@
 package domain;
+import java.io.Serializable;
 
-public class CategoryStatistics {
+public class CategoryStatistics implements Serializable {
     private Category category;
     private int cantidad;
 

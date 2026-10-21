@@ -1,10 +1,11 @@
 package domain;
+import java.io.Serializable;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Reservation {
+public class Reservation implements Serializable{
     private String id;
     private String activity;
     private Employee employee;

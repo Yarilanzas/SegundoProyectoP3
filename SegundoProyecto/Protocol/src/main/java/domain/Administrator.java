@@ -1,6 +1,7 @@
 package domain;
+import java.io.Serializable;
 
-public class Administrator extends User {
+public class Administrator extends User implements Serializable{
 
     public Administrator() {
         super();

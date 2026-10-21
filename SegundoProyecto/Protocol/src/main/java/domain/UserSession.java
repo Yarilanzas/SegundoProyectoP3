@@ -1,6 +1,7 @@
 package domain;
+import java.io.Serializable;
 
-public class UserSession {
+public class UserSession implements Serializable{
     private static UserSession instance;
     private User currentUser;
 

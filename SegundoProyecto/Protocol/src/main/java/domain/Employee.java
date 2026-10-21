@@ -1,6 +1,7 @@
 package domain;
+import java.io.Serializable;
 
-public class Employee extends User {
+public class Employee extends User implements Serializable {
 
     private String name;
     private String phone;

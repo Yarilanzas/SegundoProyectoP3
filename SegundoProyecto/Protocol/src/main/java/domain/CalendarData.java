@@ -2,8 +2,9 @@ package domain;
 
 import java.util.List;
 import java.util.Map;
+import java.io.Serializable;
 
-public class CalendarData {
+public class CalendarData implements Serializable {
     private List<Resource> resources;
     private List<String> hours;
     private Map<String, Map<String,String>> cells;

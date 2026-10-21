@@ -1,6 +1,7 @@
 package domain;
+import java.io.Serializable;
 
-public class Resource {
+public class Resource implements Serializable{
     private Category category;
     private String id;
     private String description;

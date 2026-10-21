@@ -3,8 +3,9 @@ package domain;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.io.Serializable;
 
-public class ActivityData {
+public class ActivityData implements Serializable  {
     private List<LocalDate> days;
     private List<String> hours;
     private Map<String, Map<LocalDate,String>> cells;

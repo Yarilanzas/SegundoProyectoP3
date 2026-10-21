@@ -1,6 +1,7 @@
 package domain;
+import java.io.Serializable;
 
-public class DetailReservation {
+public class DetailReservation implements Serializable{
     private Category requestedCategory;
     private Resource assignedResource;
 

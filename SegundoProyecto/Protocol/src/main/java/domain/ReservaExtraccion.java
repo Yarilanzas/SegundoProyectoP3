@@ -1,8 +1,9 @@
 package domain;
 
 import java.util.List;
+import java.io.Serializable;
 
-public class ReservaExtraccion {
+public class ReservaExtraccion implements Serializable {
     private String actividad;
     private String fecha;
     private String horaInicio;

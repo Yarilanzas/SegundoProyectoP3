@@ -1,7 +1,9 @@
 package domain;
+import java.io.Serializable;
 
 
-public class ActivityStatistics {
+
+public class ActivityStatistics implements Serializable{
     private String semana;
     private int cantidad;
 
