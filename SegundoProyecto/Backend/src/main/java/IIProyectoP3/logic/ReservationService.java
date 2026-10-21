@@ -138,6 +138,7 @@ public class ReservationService {
     public List<Reservation> findAllResources() throws Exception{
         return reservationDAO.findAll();
     }
+
     public ReservaExtraccion extraerReserva(String frase) throws Exception {
         List<Category> categories = categoryDAO.findAll();
 

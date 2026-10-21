@@ -7,16 +7,11 @@ public class Response implements Serializable {
     private String errorMessage; // Protocol.ERROR_ERROR = mensaje si ocurrió una excepción
 
 
-    public Response(int status, Object data) {
+    public Response(int status, Object data, String errorMessage) {
         this.status = status;
         this.data = data;
-    }
-
-    public Response(int status, String errorMessage) {
-        this.status = status;
         this.errorMessage = errorMessage;
     }
-
 
     public int getStatus() {
         return status;

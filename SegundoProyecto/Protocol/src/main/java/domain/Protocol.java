@@ -8,10 +8,13 @@ public class Protocol {
     public static final int USER_LOGIN_READ=100;
     public static final int LOGOUT=101;
     public static final int USER_CHANGE_PASSWORD=102;
-    //public static final int SYNC = 103;
+
+    public static final int SYNC = 103;    // primera conexión: canal de peticiones
+    public static final int ASYNC = 104;   // segunda conexión: canal de alertas
+    public static final int DELIVER_RESERVATION = 901;  // alerta servidor al cliente
 
 
-    //Users
+    //Users, employee
     public static final int EMPLOYEE_FIND_ALL = 201;
     public static final int EMPLOYEE_FIND_BY_ID = 202;
     public static final int EMPLOYEE_FIND_BY_NAME = 203;
@@ -52,7 +55,5 @@ public class Protocol {
 
     public static final int DISCONNECT=99;
 
-    //Asíncrono (servidor → cliente)
-    //public static final int DELIVER_RESERVATION = 901;
 
 }
