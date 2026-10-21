@@ -129,101 +129,97 @@ public class ReservationDAO {
     }
 
     public void delete(String id) throws Exception{
-        String sql = "delete from reserva where id=?";
-        PreparedStatement stm = db.prepareStatement(sql);
-        stm.setString(1,id);
+        try {
+            db.beginTransaction();
 
-        int count = db.executeUpdate(stm);
-        if (count == 0){
-            throw new Exception("La reserva no existe");
+            String sqlRel = "delete from reserva_recurso where reserva_id = ?";
+            PreparedStatement stmRel = db.prepareStatement(sqlRel);
+            stmRel.setString(1,id);
+            db.executeUpdate(stmRel);
+
+            String sql = "delete from reserva where id=?";
+            PreparedStatement stm = db.prepareStatement(sql);
+            stm.setString(1,id);
+
+            int count = db.executeUpdate(stm);
+            if (count == 0){
+                throw new Exception("La reserva no existe");
+            }
+            db.commit();
+        } catch (Exception e) {
+            db.rollback();
+            throw e;
         }
     }
 
-    public List<Reservation> findbyEmployee (String employeeId){
+    public List<Reservation> findbyEmployee (String employeeId) throws Exception{
         List<Reservation> resultado = new ArrayList<>();
-        try {
-            String sql = "select r.id, r.actividad, r.fecha, r.hora_inicio, r.hora_fin, r.estado, " +
-                    "u.id, u.clave, u.rol, f.nombre, f.telefono " +
-                    "from reserva r " +
-                    "inner join funcionario f on r.funcionario_id = f.id " +
-                    "inner join usuario u on f.id = u.id " +
-                    "where f.id = ?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1,employeeId);
-            ResultSet rs = db.executeQuery(stm);
+        String sql = "select r.id, r.actividad, r.fecha, r.hora_inicio, r.hora_fin, r.estado, " +
+                "u.id, u.clave, u.rol, f.nombre, f.telefono " +
+                "from reserva r " +
+                "inner join funcionario f on r.funcionario_id = f.id " +
+                "inner join usuario u on f.id = u.id " +
+                "where f.id = ?";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1,employeeId);
+        ResultSet rs = db.executeQuery(stm);
 
-            while (rs != null && rs.next()){
-                Reservation res = from(rs,"r","u","f");
-                res.setResources(readResourcesForReserva(res.getId()));
-                resultado.add(res);
-            }
-
-        } catch (SQLException ex) {
-            System.err.println("Error al buscar reserva por funcionarios: " + ex.getMessage());
+        while (rs.next()){
+            Reservation res = from(rs,"r","u","f");
+            res.setResources(readResourcesForReserva(res.getId()));
+            resultado.add(res);
         }
         return resultado;
     }
 
-    public List<Resource> readResourcesForReserva(String reservaId){
+    public List<Resource> readResourcesForReserva(String reservaId) throws Exception{
         List<Resource> resources = new ArrayList<>();
-        try {
-            String sql = "select rec.id, rec.descripcion, c.id, c.descripcion " +
-                    "from reserva_recurso rr " +
-                    "inner join recurso rec on rr.recurso_id = rec.id " +
-                    "inner join categoria c on rec.categoria_id = c.id " +
-                    "where rr.reserva_id = ?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1,reservaId);
-            ResultSet rs = db.executeQuery(stm);
+        String sql = "select rec.id, rec.descripcion, c.id, c.descripcion " +
+                "from reserva_recurso rr " +
+                "inner join recurso rec on rr.recurso_id = rec.id " +
+                "inner join categoria c on rec.categoria_id = c.id " +
+                "where rr.reserva_id = ?";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1,reservaId);
+        ResultSet rs = db.executeQuery(stm);
 
-            while (rs != null && rs.next()){
-                resources.add(resourceDAO.from(rs,"rec","c"));
-            }
-        } catch (SQLException ex) {
-            System.err.println("Error al cargar recursos de la reserva: " + ex.getMessage());
+        while (rs.next()){
+            resources.add(resourceDAO.from(rs,"rec","c"));
         }
         return resources;
     }
 
-    public Reservation from(ResultSet rs, String aliasR, String aliasU, String aliasF) {
-        try {
-            Reservation r = new Reservation();
-            r.setId(rs.getString(aliasR + ".id"));
-            r.setActivity(rs.getString(aliasR + ".actividad"));
+    public Reservation from(ResultSet rs, String aliasR, String aliasU, String aliasF) throws SQLException {
+        Reservation r = new Reservation();
+        r.setId(rs.getString(aliasR + ".id"));
+        r.setActivity(rs.getString(aliasR + ".actividad"));
 
-            if (rs.getDate(aliasR + ".fecha") != null) {
-                r.setDate(rs.getDate(aliasR + ".fecha").toLocalDate());
-            }
-
-            r.setStartTime(rs.getString(aliasR + ".hora_inicio"));
-            r.setEndTime(rs.getString(aliasR + ".hora_fin"));
-            r.setStatus(rs.getString(aliasR + ".estado"));
-            r.setEmployee((Employee) userDAO.from(rs, aliasU, aliasF));
-
-            return r;
-        } catch (SQLException ex) {
-            return null;
+        if (rs.getDate(aliasR + ".fecha") != null) {
+            r.setDate(rs.getDate(aliasR + ".fecha").toLocalDate());
         }
+
+        r.setStartTime(rs.getString(aliasR + ".hora_inicio").substring(0,5));
+        r.setEndTime(rs.getString(aliasR + ".hora_fin").substring(0,5));
+        r.setStatus(rs.getString(aliasR + ".estado"));
+        r.setEmployee((Employee) userDAO.from(rs, aliasU, aliasF));
+
+        return r;
     }
 
-    public List<Reservation> findAll(){
+    public List<Reservation> findAll() throws Exception{
         List<Reservation> resultado = new ArrayList<>();
-        try{
-            String sql = "select r.id, r.actividad, r.fecha, r.hora_inicio, r.hora_fin, r.estado, " +
-                    "u.id, u.clave, u.rol, f.nombre, f.telefono " +
-                    "from reserva r " +
-                    "inner join funcionario f on r.funcionario_id = f.id " +
-                    "inner join usuario u on f.id = u.id";
-            PreparedStatement stm = db.prepareStatement(sql);
-            ResultSet rs = db.executeQuery(stm);
+        String sql = "select r.id, r.actividad, r.fecha, r.hora_inicio, r.hora_fin, r.estado, " +
+                "u.id, u.clave, u.rol, f.nombre, f.telefono " +
+                "from reserva r " +
+                "inner join funcionario f on r.funcionario_id = f.id " +
+                "inner join usuario u on f.id = u.id";
+        PreparedStatement stm = db.prepareStatement(sql);
+        ResultSet rs = db.executeQuery(stm);
 
-            while (rs != null && rs.next()){
-                Reservation res = from(rs,"r","u","f");
-                res.setResources(readResourcesForReserva(res.getId()));
-                resultado.add(res);
-            }
-        } catch (SQLException ex){
-            System.err.println("Error al obtener todas las reservas: " + ex.getMessage());
+        while (rs.next()){
+            Reservation res = from(rs,"r","u","f");
+            res.setResources(readResourcesForReserva(res.getId()));
+            resultado.add(res);
         }
         return resultado;
     }

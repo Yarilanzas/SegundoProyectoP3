@@ -23,15 +23,21 @@ public class ResourceDAO {
         stm.setString(1, r.getId());
         stm.setString(2, r.getDescription());
         stm.setString(3, r.getCategory().getId());
-
-        int count = db.executeUpdate(stm);
-        if (count == 0){
-            throw new Exception("El recurso ya existe o no se pudo insertar");
+        try {
+            db.executeUpdate(stm);
+        } catch (SQLException ex) {
+            if (ex.getErrorCode() == 1062) {
+                throw new Exception("Ya existe un recurso con ese código");
+            }
+            if (ex.getErrorCode() == 1452) {
+                throw new Exception("La categoría seleccionada no existe");
+            }
+            throw ex;
         }
     }
 
     public Resource read (String id) throws Exception{
-        String sql = "select r.descripcion, r.descripcion, c.id, c.descripcion " +
+        String sql = "select r.descripcion, c.id, c.descripcion " +
                 "from recurso r " +
                 "inner join categoria c on r.categoria_id = c.id " +
                 "where r.id = ?";
@@ -53,9 +59,15 @@ public class ResourceDAO {
         stm.setString(2, r.getCategory().getId());
         stm.setString(3, r.getId());
 
-        int count = db.executeUpdate(stm);
-        if (count == 0){
-            throw new Exception("El recurso no existe");
+        try {
+            int count = db.executeUpdate(stm);
+            if (count == 0) {
+                throw new Exception("El recurso no existe");
+            }
+        } catch (SQLException e) {
+           if (e.getErrorCode() == 1452){
+               throw new Exception("La categoria seleccionada no existe");
+           }
         }
     }
 
@@ -77,74 +89,60 @@ public class ResourceDAO {
         }
     }
 
-    public List<Resource> findByDescription(String descripcion){
+    public List<Resource> findByDescription(String descripcion) throws Exception{
         List<Resource> resultado = new ArrayList<>();
-        try {
-            String sql = "select r.id, r.descripcion, c.id, c.descripcion " +
-                    "from recurso r " +
-                    "inner join categoria c on r.categoria_id = c.id " +
-                    "where r.descripcion like ?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1,"%" + descripcion + "%");
-            ResultSet rs = db.executeQuery(stm);
+        String sql = "select r.id, r.descripcion, c.id, c.descripcion " +
+                "from recurso r " +
+                "inner join categoria c on r.categoria_id = c.id " +
+                "where r.descripcion like ?";
 
-            while (rs != null && rs.next()){
-                resultado.add(from(rs,"r","c"));
-            }
-        } catch (SQLException ex) {
-            System.err.println("Error al buscar recursos: " + ex.getMessage());
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1,"%" + descripcion + "%");
+        ResultSet rs = db.executeQuery(stm);
+
+        while (rs != null && rs.next()){
+            resultado.add(from(rs,"r","c"));
         }
         return resultado;
     }
 
-    public List<Resource> findByCategory(String categoriaId){
+    public List<Resource> findByCategory(String categoriaId) throws Exception{
         List<Resource> resultado = new ArrayList<>();
-        try {
-            String sql = "select r.id, r.descripcion, c.id, c.descripcion " +
-                    "from recurso r " +
-                    "inner join categoria c on r.categoria_id = c.id " +
-                    "where c.id = ?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1,categoriaId);
-            ResultSet rs = db.executeQuery(stm);
+        String sql = "select r.id, r.descripcion, c.id, c.descripcion " +
+                "from recurso r " +
+                "inner join categoria c on r.categoria_id = c.id " +
+                "where c.id = ?";
 
-            while (rs != null && rs.next()){
-                resultado.add(from(rs,"r","c"));
-            }
-        } catch (SQLException ex) {
-            System.err.println("Error al buscar por categoria: " + ex.getMessage());
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1,categoriaId);
+        ResultSet rs = db.executeQuery(stm);
+
+        while (rs != null && rs.next()){
+            resultado.add(from(rs,"r","c"));
         }
         return resultado;
     }
 
-    public List<Resource> findAll(){
+    public List<Resource> findAll() throws Exception{
         List<Resource> recursos = new ArrayList<>();
-        try{
-            String sql = "select r.id, r.descripcion, c.id, c.descripcion " +
-                    "from recurso r " +
-                    "inner join categoria c on r.categoria_id = c.id";
-            PreparedStatement stm = db.prepareStatement(sql);
-            ResultSet rs = db.executeQuery(stm);
+        String sql = "select r.id, r.descripcion, c.id, c.descripcion " +
+                "from recurso r " +
+                "inner join categoria c on r.categoria_id = c.id";
 
-            while (rs != null && rs.next()){
-                recursos.add(from(rs,"r","c"));
-            }
+        PreparedStatement stm = db.prepareStatement(sql);
+        ResultSet rs = db.executeQuery(stm);
 
-        } catch (SQLException ex){
-            System.err.println("Error al obtener todos los recursos: " + ex.getMessage());
+        while (rs != null && rs.next()){
+            recursos.add(from(rs,"r","c"));
         }
         return recursos;
     }
 
-    public Resource from(ResultSet rs, String aliasR, String aliasC) {
-        try {
+    public Resource from(ResultSet rs, String aliasR, String aliasC) throws SQLException {
             Resource r = new Resource();
             r.setId(rs.getString(aliasR + ".id"));
             r.setDescription(rs.getString(aliasR + ".descripcion"));
             r.setCategory(categoryDao.from(rs, aliasC));
             return r;
-        } catch (SQLException ex) {
-            return null;
-        }
     }
 }

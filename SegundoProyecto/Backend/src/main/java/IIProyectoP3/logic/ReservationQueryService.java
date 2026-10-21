@@ -1,11 +1,8 @@
-/*Este service es especifico ante cualquier consulta que tenga que ver con una reservacion
-ya hecha, o sea  basicamente agrupar todas las consultas sobre una reserva en un service, en vez
-de hacerlas todas separadas, o sea como en calendarizacion, actividades, estadisiticas
-
-son solo distintas formas de leer y resumir los mismos datos de Reservation/DetailReservation.
-Como los 4 métodos (getCalendar, getWeeklySchedule, getResourceStatistics, getActivityStatistics)
-leen exactamente la misma fuente de datos, tenerlos juntos evita duplicar el data.getReservations()
-en 4 archivos distintos sin necesidad real de separarlos.
+/*Este service agrupa todas las consultas sobre reservaciones ya hechas: calendarización,
+actividades y estadísticas. Son distintas formas de leer y resumir los mismos datos de
+Reservation. Como los 4 métodos (getCalendar, getHorarioSemanal, getResourceStatistics,
+getActivityStatistics) leen exactamente la misma fuente de datos, tenerlos juntos evita
+duplicar reservationDAO.findAll() en 4 services distintos sin necesidad real de separarlos.
 */
 
 package IIProyectoP3.logic;
@@ -19,8 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
-import domain.ActivityStatistics;
-import domain.CategoryStatistics;
 
 public class ReservationQueryService {
     private static final String[] HORAS = {"06:00","07:00","08:00","09:00","10:00",
@@ -38,8 +33,11 @@ public class ReservationQueryService {
     }
 
     public CalendarData getCalendar(LocalDate fecha,Category categoria) throws Exception{
-       List<Resource> recursos = resourceDAO.findByCategory(categoria.getId());
-       List<Reservation> reservas = reservationDAO.findAll();
+        if (fecha == null) throw new Exception("Debe seleccionar una fecha");
+        if (categoria == null) throw new Exception("Debe seleccionar una categoría");
+
+        List<Resource> recursos = resourceDAO.findByCategory(categoria.getId());
+        List<Reservation> reservas = reservationDAO.findAll();
 
         List<String> horas = Arrays.asList(HORAS);
         Map<String,Map<String,String>> celdas = new HashMap<>();
@@ -82,6 +80,8 @@ public class ReservationQueryService {
     }
 
     public ActivityData getHorarioSemanal(LocalDate fecharef) throws Exception{
+        if (fecharef == null) throw new Exception("Debe seleccionar una fecha");
+
         LocalDate lunes = fecharef.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); //agarra el dia lunes
         List<LocalDate> dias = new ArrayList<>();
         for(int i = 0; i<7;i++){
@@ -93,7 +93,7 @@ public class ReservationQueryService {
         Map<String, Map<LocalDate,String>> celdas = new HashMap<>();
 
         for (Reservation reserva : reservas){
-            if (!"ACTIVA".equals(reserva.getStatus())) continue;
+            if (!"ACTIVA".equalsIgnoreCase(reserva.getStatus())) continue;
             if (!dias.contains(reserva.getDate())) continue;
 
             String nomEmp = (reserva.getEmployee()!=null) ? reserva.getEmployee().getName() : "No asignado";
@@ -105,14 +105,16 @@ public class ReservationQueryService {
                 }
             }
         }
-            return new ActivityData(dias, horas,celdas);
+        return new ActivityData(dias, horas,celdas);
     }
 
 
     public List <CategoryStatistics> getResourceStatistics(LocalDate desde, LocalDate hasta) throws Exception{
+        if (desde == null || hasta == null) throw new Exception("Debe seleccionar el rango de fechas");
+        if (desde.isAfter(hasta)) throw new Exception("La fecha 'Desde' no puede ser posterior a 'Hasta'");
+
         List<Category> categories = categoryDAO.findAll();
         List<Reservation> reservas = reservationDAO.findAll();
-
 
         List<CategoryStatistics> estadisticas = new ArrayList<>();
         for (Category c : categories){
@@ -140,6 +142,9 @@ public class ReservationQueryService {
     }
 
     public List<ActivityStatistics> getActivityStatistics(LocalDate desde, LocalDate hasta) throws Exception{
+        if (desde == null || hasta == null) throw new Exception("Debe seleccionar el rango de fechas");
+        if (desde.isAfter(hasta)) throw new Exception("La fecha 'Desde' no puede ser posterior a 'Hasta'");
+
         List<Reservation> reservas = reservationDAO.findAll();
 
         List<ActivityStatistics> estadisticas = new ArrayList<>();

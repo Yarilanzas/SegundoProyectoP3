@@ -34,12 +34,16 @@ public class CategoryService {
         return null;
     }
 
-    public List<Category> findByDescription(String descripcion) throws Exception{
+   /* public List<Category> findByDescription(String descripcion) throws Exception{
         return categoryDAO.findbyDescription(descripcion);
-    }
+    }*/
 
     public void save(Category categoria) throws Exception {
-       Category existe = null;
+        if (categoria.getDescription() == null || categoria.getDescription().trim().isEmpty()) {
+            throw new Exception("La descripción de la categoría es obligatoria");
+        }
+
+        Category existe = null;
        if (categoria.getId() != null && !categoria.getId().trim().isEmpty()){
            existe = findById(categoria.getId());
        }

@@ -42,6 +42,7 @@ public class EmployeeService {
 
         if (exist != null){
             userDAO.update(employee);
+            employee.setPassword(exist.getPassword());
         } else {
             String nuevo = generateId(findAll());
             employee.setId(nuevo);

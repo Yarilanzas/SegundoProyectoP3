@@ -28,6 +28,35 @@ public class ReservationService {
     }
 
     public void save(Reservation newReservation, List<Category> categoriasSeleccionadas) throws Exception {
+        if (newReservation.getActivity() == null || newReservation.getActivity().trim().isEmpty()) {
+            throw new Exception("La actividad es obligatoria");
+        }
+        if (newReservation.getEmployee() == null) {
+            throw new Exception("La reserva debe tener un funcionario");
+        }
+        if (newReservation.getDate() == null) {
+            throw new Exception("La fecha es obligatoria");
+        }
+        if (newReservation.getStartTime() == null || newReservation.getStartTime().trim().isEmpty()
+                || newReservation.getEndTime() == null || newReservation.getEndTime().trim().isEmpty()) {
+            throw new Exception("Las horas de inicio y fin son obligatorias");
+        }
+
+        LocalTime inicio, fin;
+
+        try {
+            inicio = LocalTime.parse(newReservation.getStartTime());
+            fin = LocalTime.parse(newReservation.getEndTime());
+        } catch (Exception ex) {
+            throw new Exception("Formato de hora inválido (use HH:mm)");
+        }
+        if (!fin.isAfter(inicio)) {
+            throw new Exception("La hora de fin debe ser posterior a la de inicio");
+        }
+        if (categoriasSeleccionadas == null || categoriasSeleccionadas.isEmpty()) {
+            throw new Exception("Debe seleccionar al menos una categoría");
+        }
+
         List<Reservation> todasReservas = reservationDAO.findAll();
 
         newReservation.setId(generateNextId(todasReservas));
@@ -41,15 +70,15 @@ public class ReservationService {
             Resource disponible = buscarRecursoDisponible(recursosDeCat, newReservation, todasReservas);
 
             if (disponible == null) {
-                throw new Exception("No hay recursos disponibles para la categoría '"
-                        + cat.getDescription() + "' en el rango de horario seleccionado.");
+                throw new Exception("No hay recursos disponibles para la categoría "
+                        + cat.getDescription() + " en el rango de horario seleccionado.");
             }
 
             recursosAsignados.add(disponible);
         }
 
         newReservation.setResources(recursosAsignados);
-       reservationDAO.create(newReservation);
+        reservationDAO.create(newReservation);
     }
 
     private Resource buscarRecursoDisponible(List<Resource> recursos, Reservation nuevaReserva, List<Reservation> reservasExistentes) {
@@ -102,9 +131,10 @@ public class ReservationService {
         return String.format("RES-%03d", max + 1);
     }
 
-    public static String generateNextId(int lastNumber) {
+   /* public static String generateNextId(int lastNumber) {
         return String.format("RES-%03d", lastNumber + 1);
-    }
+    }*/
+
     public List<Reservation> findAllResources() throws Exception{
         return reservationDAO.findAll();
     }
@@ -125,6 +155,7 @@ public class ReservationService {
 
         return aiService.extraer(frase, listaCategorias, LocalTime.now().toString());
     }
+
     public void delete(String id) throws Exception {
         reservationDAO.delete(id);
     }

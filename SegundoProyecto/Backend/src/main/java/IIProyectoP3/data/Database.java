@@ -18,16 +18,15 @@ public class Database {
     }
 
     private Database(){
-
-        this.cnx=this.getConnection();
+        //  this.cnx=this.getConnection();
     }
 
-    public Connection getConnection() {
-        try {
-            if (cnx != null && !cnx.isClosed()) {
-                return cnx;
-            }
+    public Connection getConnection() throws SQLException {
+        if (cnx != null && !cnx.isClosed()){
+            return cnx;
+        }
 
+        try {
             Properties prop = new Properties();
             InputStream is = getClass().getResourceAsStream(PROPERTIES_FILE_NAME);
 
@@ -49,10 +48,12 @@ public class Database {
             Class.forName(driver);
             cnx = DriverManager.getConnection(url);
             return cnx;
-        } catch (Exception e) {
-            System.err.println("Error de conexión a la Base de Datos: " + e.getMessage());
+
+        } catch (SQLException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new SQLException("Error de conexión a la Base de Datos: " + ex.getMessage());
         }
-        return null;
     }
 
     public PreparedStatement prepareStatement(String statement) throws SQLException {

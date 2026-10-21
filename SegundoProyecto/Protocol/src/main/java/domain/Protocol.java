@@ -6,7 +6,9 @@ public class Protocol {
 
     //Login
     public static final int USER_LOGIN_READ=100;
-    public static final int USER_CHANGE_PASSWORD=101;
+    public static final int LOGOUT=101;
+    public static final int USER_CHANGE_PASSWORD=102;
+    //public static final int SYNC = 103;
 
 
     //Users
@@ -35,8 +37,8 @@ public class Protocol {
     public static final int CATEGORY_FIND_ALL = 501;
     public static final int CATEGORY_FIND_BY_ID = 502;
     public static final int CATEGORY_FIND_BY_DESC=503;
-    public static final int CATEGORY_DELETE=305;
-    public static final int CATEGORY_SAVE=306;
+    public static final int CATEGORY_DELETE=504;
+    public static final int CATEGORY_SAVE=505;
 
     //Reservation Query
     public static final int RESERVATION_QUERY_GET_CALENDAR = 601;
@@ -49,5 +51,8 @@ public class Protocol {
     public static final int ERROR_ERROR=1;
 
     public static final int DISCONNECT=99;
+
+    //Asíncrono (servidor → cliente)
+    //public static final int DELIVER_RESERVATION = 901;
 
 }

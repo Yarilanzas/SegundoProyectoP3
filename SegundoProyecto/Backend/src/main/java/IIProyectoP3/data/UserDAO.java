@@ -8,6 +8,7 @@ import domain.User;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class UserDAO {
         }
     }
 
-    public List<Employee> findAllEmployees() {
+    public List<Employee> findAllEmployees() throws Exception {
         List<Employee> resultado = new ArrayList<>();
         String sql = "select u.id, u.clave, u.rol, f.nombre, f.telefono " +
                 "from usuario u " +
@@ -56,17 +57,14 @@ public class UserDAO {
 
             while (rs != null && rs.next()) {
                 Employee emp = (Employee) from(rs, "u", "f");
-
                 if (emp != null) {
                     resultado.add(emp);
                 }
             }
-
-        } catch (SQLException ex) {
-            System.err.println("Error al obtener todos los funcionarios: " + ex.getMessage());
         }
         return resultado;
     }
+
     public void create(User u) throws Exception{
         String rol = (u instanceof  Administrator) ? "ADMIN" : "FUNCIONARIO";
 
@@ -155,7 +153,7 @@ public class UserDAO {
 
             String sqlFuncionario = "delete from funcionario where id=?";
             PreparedStatement stmF = db.prepareStatement(sqlFuncionario);
-            stmF.setString(1,id);
+            stmF.setString(1, id);
             db.executeUpdate(stmF);
 
             String sqlUsuario = "delete from usuario where id=?";
@@ -163,20 +161,22 @@ public class UserDAO {
             stmU.setString(1, id);
 
             int count = db.executeUpdate(stmU);
-            if (count == 0){
+            if (count == 0) {
                 throw new Exception("Usuario no existe");
             }
 
             db.commit();
+        } catch (SQLIntegrityConstraintViolationException ex){
+            db.rollback();
+            throw new Exception("No se puede eliminar, el funcionario tiene reservas registradas");
         }catch (Exception ex){
             db.rollback();
             throw ex;
         }
     }
 
-    public List<Employee> findEmployeebyName(String nombre){
+    public List<Employee> findEmployeebyName(String nombre) throws Exception{
         List<Employee> resultado = new ArrayList<>();
-        try {
             String sql = "select u.id, u.clave, u.rol, f.nombre, f.telefono " +
                     "from usuario u " +
                     "inner join funcionario f on u.id = f.id " +
@@ -187,31 +187,24 @@ public class UserDAO {
             while (rs != null && rs.next()){
                 resultado.add((Employee) from(rs,"u","f"));
             }
-        } catch (SQLException ex) {
-            System.err.println("Error la buscar funcionarios: " + ex.getMessage());
-        }
         return resultado;
     }
 
-    public User from(ResultSet rs, String aliasU, String aliasF) {
-        try {
-            String rol = rs.getString(aliasU + ".rol");
+    public User from(ResultSet rs, String aliasU, String aliasF) throws SQLException {
+        String rol = rs.getString(aliasU + ".rol");
 
-            if ("ADMIN".equalsIgnoreCase(rol)) {
-                Administrator admin = new Administrator();
-                admin.setId(rs.getString(aliasU + ".id"));
-                admin.setPassword(rs.getString(aliasU + ".clave"));
-                return admin;
-            } else {
-                Employee emp = new Employee();
-                emp.setId(rs.getString(aliasU + ".id"));
-                emp.setPassword(rs.getString(aliasU + ".clave"));
-                emp.setName(rs.getString(aliasF + ".nombre"));
-                emp.setPhone(rs.getString(aliasF + ".telefono"));
-                return emp;
-            }
-        } catch (SQLException ex) {
-            return null;
+        if ("ADMIN".equalsIgnoreCase(rol)) {
+            Administrator admin = new Administrator();
+            admin.setId(rs.getString(aliasU + ".id"));
+            admin.setPassword(rs.getString(aliasU + ".clave"));
+            return admin;
+        } else {
+            Employee emp = new Employee();
+            emp.setId(rs.getString(aliasU + ".id"));
+            emp.setPassword(rs.getString(aliasU + ".clave"));
+            emp.setName(rs.getString(aliasF + ".nombre"));
+            emp.setPhone(rs.getString(aliasF + ".telefono"));
+            return emp;
         }
     }
 }

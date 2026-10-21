@@ -22,9 +22,13 @@ public class CategoryDAO {
         stm.setString(1, c.getId());
         stm.setString(2, c.getDescription());
 
-        int count = db.executeUpdate(stm);
-        if (count == 0){
-            throw new Exception("La categoria ya existe o no se pudo insertar");
+        try {
+            db.executeUpdate(stm);
+        } catch (SQLException ex){
+            if (ex.getErrorCode() == 1062){
+                throw new Exception("Ya existe una categoria con ese codigo");
+            }
+            throw ex;
         }
     }
 
@@ -72,37 +76,29 @@ public class CategoryDAO {
         }
     }
 
-    public List<Category> findbyDescription(String descripcion){
+    public List<Category> findbyDescription(String descripcion) throws Exception{
         List<Category> resultado = new ArrayList<>();
-        try {
-            String sql = "select c.id, c.descripcion " +
-                    "from categoria c " +
-                    "where c.descripcion like ?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1,"%" + descripcion + "%");
-            ResultSet rs = db.executeQuery(stm);
+        String sql = "select c.id, c.descripcion " +
+                "from categoria c " +
+                "where c.descripcion like ?";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1,"%" + descripcion + "%");
+        ResultSet rs = db.executeQuery(stm);
 
-            while (rs != null && rs.next()){
-                resultado.add(from(rs,"c"));
-            }
-        } catch (SQLException ex) {
-            System.err.println("Error al buscar categorias: " + ex.getMessage());
+        while (rs != null && rs.next()){
+            resultado.add(from(rs,"c"));
         }
         return resultado;
     }
 
-    public List<Category> findAll(){
+    public List<Category> findAll() throws Exception{
         return findbyDescription("");
     }
 
-    public Category from(ResultSet rs, String alias) {
-        try {
-            Category c = new Category();
-            c.setId(rs.getString(alias + ".id"));
-            c.setDescription(rs.getString(alias + ".descripcion"));
-            return c;
-        } catch (SQLException ex) {
-            return null;
-        }
+    public Category from(ResultSet rs, String alias) throws SQLException {
+        Category c = new Category();
+        c.setId(rs.getString(alias + ".id"));
+        c.setDescription(rs.getString(alias + ".descripcion"));
+        return c;
     }
 }

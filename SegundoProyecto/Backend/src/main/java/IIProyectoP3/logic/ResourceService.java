@@ -38,19 +38,30 @@ public class ResourceService {
     }
 
     public void save(Resource r)throws Exception{
-        Resource existe = null;
-        try{
-            existe = resourceDAO.read(r.getId());
-        } catch (Exception ignored) {}
-
-        if (existe != null){
-            throw new Exception("Ya existe un recurso con ese ID");
-        }else {
-            resourceDAO.create(r);
+        if (r.getId() == null || r.getId().trim().isEmpty()) {
+            throw new Exception("El código del recurso es obligatorio");
         }
+        if (r.getDescription() == null || r.getDescription().trim().isEmpty()) {
+            throw new Exception("La descripción del recurso es obligatoria");
+        }
+        if (r.getCategory() == null) {
+            throw new Exception("Debe seleccionar una categoría");
+        }
+
+        resourceDAO.create(r);
+
     }
 
     public void update (Resource r) throws Exception{
+        if (r.getId() == null || r.getId().trim().isEmpty()) {
+            throw new Exception("El código del recurso es obligatorio");
+        }
+        if (r.getDescription() == null || r.getDescription().trim().isEmpty()) {
+            throw new Exception("La descripción del recurso es obligatoria");
+        }
+        if (r.getCategory() == null) {
+            throw new Exception("Debe seleccionar una categoría");
+        }
         resourceDAO.update(r);
     }
 }
