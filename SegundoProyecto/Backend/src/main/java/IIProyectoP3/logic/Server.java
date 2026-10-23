@@ -44,7 +44,7 @@ public class Server {
                     worker = new Worker(this, s, os, is, sid);
                     this.add(worker);
                     worker.start();
-                } else  if (type == Protocol.SYNC){
+                } else if (type == Protocol.ASYNC){
                     String sid = (String) is.readObject();
                     Worker w = find(sid);
                     if (w != null){
@@ -83,11 +83,11 @@ public class Server {
 
     public void deliverReservationAlert(Reservation r, Worker sender) {
         synchronized(workers) {
-            for (Worker w : workers){
+            System.out.println("Enviando alerta " + r.getId() + " a " + (workers.size() - 1) + " cliente(s)");
+            for (Worker w : workers) {
                 if (w != sender) w.deliver(r);
             }
         }
     }
-
 
 }

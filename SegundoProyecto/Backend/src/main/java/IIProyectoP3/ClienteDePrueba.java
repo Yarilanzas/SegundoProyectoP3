@@ -106,8 +106,8 @@ public class ClienteDePrueba {
             Reservation nueva = new Reservation();
             nueva.setActivity("Prueba desde consola");
             nueva.setDate(LocalDate.now().plusDays(1));
-            nueva.setStartTime("09:00");
-            nueva.setEndTime("10:00");
+            nueva.setStartTime("08:00");
+            nueva.setEndTime("09:00");
             nueva.setEmployee((Employee) user);
 
             os.writeInt(Protocol.RESERVATION_SAVE);
