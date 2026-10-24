@@ -1,4 +1,5 @@
-CREATE DATABASE IF NOT EXISTS reservas CHARACTER SET utf8mb4;
+DROP DATABASE IF EXISTS reservas;
+CREATE DATABASE reservas CHARACTER SET utf8mb4;
 USE reservas;
 
 CREATE TABLE usuario (
@@ -20,10 +21,10 @@ CREATE TABLE categoria (
 );
 
 CREATE TABLE recurso (
-    id           VARCHAR(20) PRIMARY KEY,
-    descripcion  VARCHAR(100) NOT NULL,
-    categoria_id VARCHAR(20) NOT NULL,
-    FOREIGN KEY (categoria_id) REFERENCES categoria(id)
+     id           VARCHAR(20) PRIMARY KEY,
+     descripcion  VARCHAR(100) NOT NULL,
+     categoria_id VARCHAR(20) NOT NULL,
+     FOREIGN KEY (categoria_id) REFERENCES categoria(id)
 );
 
 CREATE TABLE reserva (
@@ -45,9 +46,11 @@ CREATE TABLE reserva_recurso (
     FOREIGN KEY (recurso_id) REFERENCES recurso(id)
 );
 
--- Insertar el usuario Administrador base
-INSERT INTO usuario (id, clave, rol) 
-VALUES ('ADM-001', '123', 'ADMIN');
 
-insert into recurso (id, descripcion, categoria_id)
-values ('REC-001', 'Sala principal', 'CAT-000001');
+INSERT INTO usuario (id, clave, rol) VALUES ('ADM-001', '123', 'ADMIN');
+INSERT INTO usuario (id, clave, rol) VALUES ('FUN-001', 'FUN-001', 'FUNCIONARIO');
+INSERT INTO funcionario (id, nombre, telefono) VALUES ('FUN-001', 'Lucia', '88888888');
+
+
+INSERT INTO categoria (id, descripcion) VALUES ('CAT-000001', 'SALA DE EVENTOS');
+INSERT INTO recurso (id, descripcion, categoria_id) VALUES ('REC-001', 'Sala principal', 'CAT-000001');
