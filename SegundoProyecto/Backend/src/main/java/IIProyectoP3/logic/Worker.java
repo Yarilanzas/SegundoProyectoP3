@@ -13,9 +13,11 @@ public class Worker {
     Socket s;
     ObjectOutputStream os;
     ObjectInputStream is;
+
     String sid;
     Socket as;
     ObjectOutputStream aos;
+    ObjectInputStream ais;
     User user;
 
     LoginService loginService = LoginService.instance();
@@ -34,9 +36,10 @@ public class Worker {
         this.sid = sid;
     }
 
-    public void setAs(Socket as, ObjectOutputStream aos){
+    public void setAs(Socket as, ObjectOutputStream aos, ObjectInputStream ais){
         this.as = as;
         this.aos = aos;
+        this.ais = ais;
     }
 
     boolean continuar;
@@ -237,7 +240,7 @@ public class Worker {
                                 reservationService.save(r, cats);
                                 os.writeObject(new Response(Protocol.ERROR_NO_ERROR, r, null));
                                 os.flush();
-                                srv.deliverReservationAlert(r, this);   // alerta
+                                srv.deliver_reservation(this, r);   // alerta
                             } catch (Exception ex) {
                                 os.writeObject(new Response(Protocol.ERROR_ERROR, null, ex.getMessage()));
                             }
@@ -331,7 +334,7 @@ public class Worker {
         }
     }
 
-    public synchronized void deliver(Reservation r){
+    public synchronized void deliver_reservation(Reservation r){
         if (aos == null || user == null) return;
         try {
             aos.writeInt(Protocol.DELIVER_RESERVATION);

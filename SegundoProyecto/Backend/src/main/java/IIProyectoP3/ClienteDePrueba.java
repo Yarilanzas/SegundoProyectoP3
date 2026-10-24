@@ -14,9 +14,9 @@ public class ClienteDePrueba {
     // ===== CAMBIAR SEGÚN TU BASE =====
     static final String USUARIO = "FUN-001";
     static final String CLAVE = "FUN-001";
-    static final boolean CREAR_RESERVA = true;   // true para probar reserva + alerta
 
     public static void main(String[] args) throws Exception {
+        Scanner teclado = new Scanner(System.in);
 
         // ---------- 1. Conexión de peticiones (SYNC) ----------
         Socket s = new Socket(Protocol.SERVER, Protocol.PORT);
@@ -65,7 +65,6 @@ public class ClienteDePrueba {
                 }
             } catch (Exception ex) {
                 System.out.println("Canal de alertas cerrado: " + ex);
-                ex.printStackTrace();
             }
         });
         escuchador.setDaemon(true);
@@ -102,12 +101,20 @@ public class ClienteDePrueba {
         }
 
         // ---------- 6. Reserva (opcional) ----------
-        if (CREAR_RESERVA && categorias != null && !categorias.isEmpty()) {
+        System.out.print("\n¿Crear reserva de prueba? (s/n): ");
+        boolean crearReserva = teclado.nextLine().trim().equalsIgnoreCase("s");
+
+        if (crearReserva && categorias != null && !categorias.isEmpty()) {
+            System.out.print("Hora de inicio (HH:mm): ");
+            String inicio = teclado.nextLine().trim();
+            System.out.print("Hora de fin (HH:mm): ");
+            String fin = teclado.nextLine().trim();
+
             Reservation nueva = new Reservation();
             nueva.setActivity("Prueba desde consola");
             nueva.setDate(LocalDate.now().plusDays(1));
-            nueva.setStartTime("08:00");
-            nueva.setEndTime("09:00");
+            nueva.setStartTime(inicio);
+            nueva.setEndTime(fin);
             nueva.setEmployee((Employee) user);
 
             os.writeInt(Protocol.RESERVATION_SAVE);
@@ -124,9 +131,101 @@ public class ClienteDePrueba {
             }
         }
 
-        // ---------- 7. Esperar alertas hasta Enter ----------
+        // ---------- 7. Calendarización ----------
+        if (categorias != null && !categorias.isEmpty()) {
+            os.writeInt(Protocol.RESERVATION_QUERY_GET_CALENDAR);
+            os.writeObject(LocalDate.now().plusDays(1));
+            os.writeObject(categorias.get(0));
+            os.flush();
+            r = (Response) is.readObject();
+            if (r.getStatus() == Protocol.ERROR_ERROR) {
+                System.out.println("Error calendario: " + r.getErrorMessage());
+            } else {
+                System.out.println("Calendario OK: " + r.getData().getClass().getSimpleName());
+            }
+        }
+
+        // ---------- 8. Horario semanal (Actividades) ----------
+        os.writeInt(Protocol.RESERVATION_QUERY_GET_HORARIO_SEMANAL);
+        os.writeObject(LocalDate.now());
+        os.flush();
+        r = (Response) is.readObject();
+        if (r.getStatus() == Protocol.ERROR_ERROR) {
+            System.out.println("Error horario: " + r.getErrorMessage());
+        } else {
+            System.out.println("Horario semanal OK: " + r.getData().getClass().getSimpleName());
+        }
+
+        // ---------- 9. Estadísticas de recursos ----------
+        os.writeInt(Protocol.RESERVATION_QUERY_GET_RESOURCE_STATS);
+        os.writeObject(LocalDate.now().minusMonths(1));
+        os.writeObject(LocalDate.now().plusMonths(1));
+        os.flush();
+        r = (Response) is.readObject();
+        if (r.getStatus() == Protocol.ERROR_ERROR) {
+            System.out.println("Error estadísticas recursos: " + r.getErrorMessage());
+        } else {
+            List<CategoryStatistics> lce = (List<CategoryStatistics>) r.getData();
+            System.out.println("Estadísticas recursos:");
+            for (CategoryStatistics ce : lce) {
+                System.out.println("   " + ce.getCategory().getDescription() + ": " + ce.getCantidad());
+            }
+        }
+
+        // ---------- 10. Estadísticas de actividades ----------
+        os.writeInt(Protocol.RESERVATION_QUERY_GET_ACTIVITY_STATS);
+        os.writeObject(LocalDate.now().minusMonths(1));
+        os.writeObject(LocalDate.now().plusMonths(1));
+        os.flush();
+        r = (Response) is.readObject();
+        if (r.getStatus() == Protocol.ERROR_ERROR) {
+            System.out.println("Error estadísticas actividades: " + r.getErrorMessage());
+        } else {
+            List<ActivityStatistics> la = (List<ActivityStatistics>) r.getData();
+            System.out.println("Estadísticas actividades: " + la.size() + " semana(s)");
+            for (ActivityStatistics a : la) {
+                System.out.println("   cantidad: " + a.getCantidad());
+            }
+        }
+
+        // ---------- 11. Crear y borrar una categoría ----------
+        Category nuevaCat = new Category();
+        nuevaCat.setDescription("Categoria de prueba");
+        os.writeInt(Protocol.CATEGORY_SAVE);
+        os.writeObject(nuevaCat);
+        os.flush();
+        r = (Response) is.readObject();
+        System.out.println("Guardar categoría: "
+                + (r.getStatus() == Protocol.ERROR_NO_ERROR ? "OK" : r.getErrorMessage()));
+
+        os.writeInt(Protocol.CATEGORY_FIND_BY_DESC);
+        os.writeObject("Categoria de prueba");
+        os.flush();
+        r = (Response) is.readObject();
+        Category encontrada = (Category) r.getData();
+        if (encontrada == null) {
+            System.out.println("No se encontró la categoría recién creada");
+        } else {
+            System.out.println("Categoría encontrada: " + encontrada.getId());
+            os.writeInt(Protocol.CATEGORY_DELETE);
+            os.writeObject(encontrada.getId());
+            os.flush();
+            r = (Response) is.readObject();
+            System.out.println("Borrar categoría: "
+                    + (r.getStatus() == Protocol.ERROR_NO_ERROR ? "OK" : r.getErrorMessage()));
+        }
+
+        // ---------- 12. Caso de error ----------
+        os.writeInt(Protocol.CATEGORY_DELETE);
+        os.writeObject("CAT-999999");
+        os.flush();
+        r = (Response) is.readObject();
+        System.out.println("Borrar categoría inexistente (debe dar error): "
+                + (r.getStatus() == Protocol.ERROR_ERROR ? r.getErrorMessage() : "ERROR: no falló"));
+
+        // ---------- 13. Esperar alertas hasta Enter ----------
         System.out.println("\nEscuchando alertas... presioná Enter para salir.");
-        new Scanner(System.in).nextLine();
+        teclado.nextLine();
 
         os.writeInt(Protocol.DISCONNECT);
         os.flush();

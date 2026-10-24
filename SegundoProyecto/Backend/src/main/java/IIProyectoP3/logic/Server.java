@@ -10,7 +10,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class Server {
     ServerSocket srv;
@@ -28,33 +27,33 @@ public class Server {
         boolean continuar = true;
         Socket s;
         Worker worker;
+        String sid;
         while (continuar) {
             try {
                 s = srv.accept();
+                System.out.println("Conexion Establecida...");
                 ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
-                os.flush();
                 ObjectInputStream is = new ObjectInputStream(s.getInputStream());
-
                 int type = is.readInt();
-                if (type == Protocol.SYNC){
-                    String sid = UUID.randomUUID().toString();
-                    os.writeObject(sid);
-                    os.flush();
-                    System.out.println("Conexion Establecida..." + s.getInetAddress() + ":" + s.getPort());
-                    worker = new Worker(this, s, os, is, sid);
-                    this.add(worker);
-                    worker.start();
-                } else if (type == Protocol.ASYNC){
-                    String sid = (String) is.readObject();
-                    Worker w = find(sid);
-                    if (w != null){
-                        w.setAs(s,os);
-                        System.out.println("Canal de alertas conectado");
-                    } else{
-                        s.close();
-                    }
+                switch (type) {
+                    case Protocol.SYNC:
+                        sid = s.getRemoteSocketAddress().toString();
+                        System.out.println("SYNCH: " + sid);
+                        worker = new Worker(this, s, os, is, sid);
+                        this.add(worker);
+                        worker.start();
+                        os.writeObject(sid); // send Session id back
+                        break;
+                    case Protocol.ASYNC:
+                        sid = (String) is.readObject(); // recieves Session Id
+                        System.out.println("ASYNCH: " + sid);
+                        join(s, os, is, sid);
+                        break;
                 }
-            } catch (Exception ex) { System.out.println(ex);}
+                os.flush();
+            } catch (IOException | ClassNotFoundException ex) {
+                System.out.println(ex);
+            }
         }
     }
 
@@ -72,20 +71,21 @@ public class Server {
         }
     }
 
-    private Worker find(String sid){
-        synchronized (workers){
-            for (Worker w : workers){
-                if (w.sid.equals(sid)) return w;
+    public void join(Socket as,ObjectOutputStream aos, ObjectInputStream ais, String sid){
+        synchronized(workers) {
+            for (Worker w : workers) {
+                if (w.sid.equals(sid)) {
+                    w.setAs(as, aos, ais);
+                    break;
+                }
             }
         }
-        return null;
     }
 
-    public void deliverReservationAlert(Reservation r, Worker sender) {
+    public void deliver_reservation(Worker from, Reservation r){
         synchronized(workers) {
-            System.out.println("Enviando alerta " + r.getId() + " a " + (workers.size() - 1) + " cliente(s)");
             for (Worker w : workers) {
-                if (w != sender) w.deliver(r);
+                if (w != from) w.deliver_reservation(r);
             }
         }
     }
