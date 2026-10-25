@@ -25,9 +25,9 @@ public interface IService {
     void categoryDelete(String id) throws Exception;
 
     //resources
-    List<Response> resourcesFindAll() throws Exception;
-    List<Response> resourceFindbyDesc(String description) throws Exception;
-    List<Response> resourceFindbyCategory(String category) throws Exception;
+    List<Resource> resourcesFindAll() throws Exception;
+    List<Resource> resourceFindbyDesc(String description) throws Exception;
+    List<Resource> resourceFindbyCategory(String category) throws Exception;
     void resourceSave(Resource resource) throws Exception;
     void resourceUpdate(Resource resource) throws Exception;
     void resourceDelete(String id) throws Exception;
