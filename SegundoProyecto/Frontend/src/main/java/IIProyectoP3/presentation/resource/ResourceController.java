@@ -1,5 +1,6 @@
 package IIProyectoP3.presentation.resource;
 
+import IIProyectoP3.logic.ServiceProxy;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -27,8 +28,8 @@ import java.util.List;
 public class ResourceController {
     private ResourceView view;
     private ResourceModel model;
-    private final ResourceService resourceService = new ResourceService();
-    private final CategoryService categoryService = new CategoryService();
+    //private final ResourceService resourceService = new ResourceService();
+    //private final CategoryService categoryService = new CategoryService();
 
 
     public ResourceController(ResourceView view, ResourceModel model) {
@@ -48,7 +49,7 @@ public class ResourceController {
 
     public void searchbyCategory(String cat) {
         try {
-            List<Resource> list = resourceService.findByCategory(cat);
+            List<Resource> list = ServiceProxy.instance().resourceFindbyCategory(cat);
             model.setResources(list);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -57,7 +58,7 @@ public class ResourceController {
 
     public void searchbyDes(String desc) {
         try {
-            List<Resource> list = resourceService.findByDesc(desc);
+            List<Resource> list = ServiceProxy.instance().resourceFindbyDesc(desc);
             model.setResources(list);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -67,15 +68,15 @@ public class ResourceController {
 
     public void cargarCategorias() {
         try {
-            model.setCategories(categoryService.findAll());
+            model.setCategories(ServiceProxy.instance().categoryFindAll());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     public void saveResource(Resource r){
         try{
-            resourceService.save(r);
-            model.setResources(resourceService.findAllResources());
+            ServiceProxy.instance().resourceSave(r);
+            model.setResources(ServiceProxy.instance().resourcesFindAll());
 
         }
         catch (Exception e) {
@@ -94,7 +95,7 @@ public class ResourceController {
 
     public void delete(String id){
         try{
-            resourceService.delete(id);
+            ServiceProxy.instance().resourceDelete(id);
             list();
             model.setCurrent(new Resource());
 
@@ -106,7 +107,7 @@ public class ResourceController {
        // throw new Exception("Debe ingresar d¿los datos:");
 
         try {
-            model.setResources(resourceService.findAllResources());
+            model.setResources(ServiceProxy.instance().resourcesFindAll());
         } catch (Exception e) {
             throw new Exception("Error al obtener la lista de recursos: " + e.getMessage());
         }

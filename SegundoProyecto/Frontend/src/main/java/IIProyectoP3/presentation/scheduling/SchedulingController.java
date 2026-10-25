@@ -1,5 +1,6 @@
 package IIProyectoP3.presentation.scheduling;
 
+import IIProyectoP3.logic.ServiceProxy;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -28,8 +29,8 @@ import java.time.LocalDate;
 public class SchedulingController {
     private SchedulingView view;
     private SchedulingModel model;
-    private final CategoryService categoryService = new CategoryService();
-    private final ReservationQueryService queryService = new ReservationQueryService();
+    //private final CategoryService categoryService = new CategoryService();
+    //private final ReservationQueryService queryService = new ReservationQueryService();
 
     public SchedulingController(SchedulingView view, SchedulingModel model) {
         this.view = view;
@@ -44,7 +45,7 @@ public class SchedulingController {
 
     public void cargarCategorias() {
         try {
-            model.setCategories(categoryService.findAll());
+            model.setCategories(ServiceProxy.instance().categoryFindAll());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -52,7 +53,7 @@ public class SchedulingController {
 
     public void cargarCalendar(LocalDate fecha, Category categoria) {
         try {
-            model.setCalendarData(queryService.getCalendar(fecha, categoria));
+            model.setCalendarData(ServiceProxy.instance().getCalendar(fecha, categoria));
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

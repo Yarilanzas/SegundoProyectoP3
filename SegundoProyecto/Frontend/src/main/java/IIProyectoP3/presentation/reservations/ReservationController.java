@@ -1,5 +1,6 @@
 package IIProyectoP3.presentation.reservations;
 
+import IIProyectoP3.logic.ServiceProxy;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -31,8 +32,8 @@ import java.util.stream.Collectors;
 public class ReservationController {
     private ReservationView view;
     private ReservationModel model;
-    private CategoryService categoryService= new CategoryService();
-    private ReservationService reservationService= new ReservationService();
+    //private CategoryService categoryService= new CategoryService();
+    //private ReservationService reservationService= new ReservationService();
 
 
     private final ReservationQueryService queryService = new ReservationQueryService();
@@ -142,9 +143,9 @@ public class ReservationController {
     }
     public void loadCategories() {
         try {
-            List<Category> list = categoryService.findAll();
+            List<Category> list = ServiceProxy.instance().categoryFindAll();
             model.setCategories(list);
-            List<Reservation> listRE = reservationService.findAllResources();
+            List<Reservation> listRE = ServiceProxy.instance().reservationFindAll();
             model.setReservations(listRE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -156,29 +157,29 @@ public class ReservationController {
     }
 
     public void saveReservation(Reservation r, List<Category> categorias) throws Exception {
-        reservationService.save(r, categorias);
+        ServiceProxy.instance().reservationSave(r, categorias);
 
-        model.setReservations(reservationService.findAllResources());
+        model.setReservations(ServiceProxy.instance().reservationFindAll());
         clear();
     }
     public void cancelReservation(String id) throws Exception {
-        reservationService.cancel(id);
-        model.setReservations(reservationService.findAllResources());
+        ServiceProxy.instance().reservationCancel(id);
+        model.setReservations(ServiceProxy.instance().reservationFindAll());
         clear();
     }
     public ReservaExtraccion extraerDeFrase(String frase) throws Exception {
-        return reservationService.extraerReserva(frase);
+        return ServiceProxy.instance().reservationExtraer(frase);
     }
 
     public void delete(String id)throws Exception{
-        reservationService.delete(id);
+        ServiceProxy.instance().reservationDelete(id);
         list();
         model.setCurrent(new Reservation());
     }
 
     public void list() {
         try {
-            model.setReservations(reservationService.findAllResources());
+            model.setReservations(ServiceProxy.instance().reservationFindAll());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

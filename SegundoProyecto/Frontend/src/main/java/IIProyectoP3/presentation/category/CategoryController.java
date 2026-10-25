@@ -1,5 +1,6 @@
 package IIProyectoP3.presentation.category;
 
+import IIProyectoP3.logic.ServiceProxy;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -18,7 +19,7 @@ import com.itextpdf.layout.properties.TextAlignment;
 import domain.Category;
 
 import IIProyectoP3.logic.CategoryService;
-
+import domain.IService;
 
 
 import javax.swing.*;
@@ -29,12 +30,14 @@ import java.util.List;
 public class CategoryController {
     private CategoryView view;
     private CategoryModel model;
-    private final CategoryService categoryService = new CategoryService();
+   // private final CategoryService categoryService = new CategoryService();
    // private final ResourceController resourceController = new ResourceController();
+
 
     public CategoryController(CategoryView view, CategoryModel model) {
         this.view = view;
         this.model = model;
+
 
         view.setController(this);
         view.setModel(model);
@@ -44,7 +47,7 @@ public class CategoryController {
 
     public void cargarCategorias() {
         try {
-            model.setList(categoryService.findAll());
+            model.setList(ServiceProxy.instance().categoryFindAll());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -52,7 +55,7 @@ public class CategoryController {
 
     public void saveCategory(Category category) {
         try {
-            categoryService.save(category);
+            ServiceProxy.instance().categorySave(category);
             this.cargarCategorias();
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,14 +69,14 @@ public class CategoryController {
     }
 
     public void delete(String id) throws Exception {
-        categoryService.delete(id);
+        ServiceProxy.instance().categoryDelete(id);
         list();
         model.setCurrent(new Category());
     }
 
     public void list() {
         try {
-            model.setList(categoryService.findAll());
+            model.setList(ServiceProxy.instance().categoryFindAll());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -89,10 +92,12 @@ public class CategoryController {
         }
     }
     public void searchDesc(String desc) {
-        try{
-            Category c= categoryService.findByDesc(desc);
-            model.setList(c != null ? List.of(c) : List.of());
-        }catch (Exception e) {
+        try {
+            List<Category> categorias = ServiceProxy.instance().categoryFindbyDesc(desc);
+
+            model.setList(categorias != null ? categorias : List.of());
+
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }

@@ -43,7 +43,7 @@ public interface IService {
     CalendarData getCalendar(LocalDate fecha, Category category) throws Exception;
     ActivityData getHorarioSemanal(LocalDate fecharef) throws Exception;
     List<CategoryStatistics> getResourceStatistics(LocalDate desde, LocalDate hasta) throws Exception;
-    List<CategoryStatistics> getActivityStatistics(LocalDate desde, LocalDate hasta) throws Exception;
+    List<ActivityStatistics> getActivityStatistics(LocalDate desde, LocalDate hasta) throws Exception;
 
     public void stop();
 }

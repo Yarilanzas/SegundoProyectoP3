@@ -1,6 +1,7 @@
 package IIProyectoP3.presentation.login;
 
 import IIProyectoP3.logic.ServiceProxy;
+import domain.IService;
 import domain.User;
 import IIProyectoP3.logic.LoginService;
 import IIProyectoP3.presentation.activities.*;
@@ -20,11 +21,13 @@ import java.awt.*;
 public class ControllerLogin {
     private Login view;
     private ModelLogin model;
-    private ServiceProxy serviceProxy;
+    //private IService serviceProxy;
 
     public ControllerLogin(Login view, ModelLogin model) {
         this.view = view;
         this.model = model;
+        //this.serviceProxy = serviceProxy;
+
         view.setController(this);
         view.setModel(model);
     }
@@ -32,7 +35,7 @@ public class ControllerLogin {
     public void login(String id, String password) {
         try {
            // User user = LoginService.instance().read(id, password);
-            User user = serviceProxy.login(id, password);
+            User user = ServiceProxy.instance().login(id, password);
             domain.UserSession.getInstance().login(user);
 
             model.setCurrent(user);
@@ -55,7 +58,7 @@ public class ControllerLogin {
 
         ChangePasswordModel model = new ChangePasswordModel();
         ChangePasswordView view = new ChangePasswordView();
-        ChangePasswordController controller = new ChangePasswordController(view, model, id, serviceProxy);
+        ChangePasswordController controller = new ChangePasswordController(view, model, id);
 
         frameChangePassword.setContentPane(view.getPanel());
 

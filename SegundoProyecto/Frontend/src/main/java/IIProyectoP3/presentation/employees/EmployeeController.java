@@ -1,5 +1,6 @@
 package IIProyectoP3.presentation.employees;
 
+import IIProyectoP3.logic.ServiceProxy;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -22,7 +23,7 @@ import java.io.File;
 import java.util.List;
 
 public class EmployeeController {
-    private final EmployeeService service = new EmployeeService();
+    //private final EmployeeService service = new EmployeeService();
     private  EmployeeModel model;
     private  EmployeeView view;
 
@@ -38,14 +39,14 @@ public class EmployeeController {
 
     public void list() {
         try {
-            model.setList(service.findAll());
+            model.setList(ServiceProxy.instance().employeeFindAll());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
     public void create(Employee e) throws Exception {
-        service.save(e);
+        ServiceProxy.instance().employeeSave(e);
         list();
         model.setCurrent(new Employee());
     }
@@ -57,10 +58,10 @@ public class EmployeeController {
     public void search(String txt, boolean porId) {
         try {
             if (porId){
-                Employee e = service.findById(txt);
+                Employee e = ServiceProxy.instance().employeeFindbyId(txt);
                 model.setList(e != null ? List.of(e) : List.of());
             } else {
-                model.setList(txt.isEmpty() ? service.findAll() : service.findByName(txt));
+                model.setList(txt.isEmpty() ? ServiceProxy.instance().employeeFindAll() : ServiceProxy.instance().employeeFindbyName(txt));
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -68,7 +69,7 @@ public class EmployeeController {
     }
 
     public void delete(String id) throws Exception {
-        service.delete(id);
+        ServiceProxy.instance().categoryDelete(id);
         list();
         model.setCurrent(new Employee());
     }

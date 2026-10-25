@@ -420,7 +420,6 @@ public class ServiceProxy implements IService {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<CategoryStatistics> getResourceStatistics(LocalDate desde, LocalDate hasta) throws Exception {
         os.writeInt(Protocol.RESERVATION_QUERY_GET_RESOURCE_STATS);
         os.writeObject(desde);
@@ -436,8 +435,7 @@ public class ServiceProxy implements IService {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<CategoryStatistics> getActivityStatistics(LocalDate desde, LocalDate hasta) throws Exception {
+    public List<ActivityStatistics> getActivityStatistics(LocalDate desde, LocalDate hasta) throws Exception {
         os.writeInt(Protocol.RESERVATION_QUERY_GET_ACTIVITY_STATS);
         os.writeObject(desde);
         os.writeObject(hasta);
@@ -445,7 +443,7 @@ public class ServiceProxy implements IService {
 
         Response response = (Response) is.readObject();
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
-            return (List<CategoryStatistics>) response.getData();
+            return (List<ActivityStatistics>) response.getData();
         } else {
             throw new Exception("No se pudieron obtener las estadísticas de actividad");
         }

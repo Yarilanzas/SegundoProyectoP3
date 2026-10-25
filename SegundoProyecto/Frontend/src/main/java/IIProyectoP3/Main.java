@@ -1,8 +1,10 @@
 package IIProyectoP3;
 //import org.presentation.administrator.AdministratorView;
+import IIProyectoP3.logic.ServiceProxy;
 import IIProyectoP3.presentation.login.ControllerLogin;
 import IIProyectoP3.presentation.login.Login;
 import IIProyectoP3.presentation.login.ModelLogin;
+import domain.IService;
 
 import java.awt.*;
 
@@ -10,10 +12,7 @@ import java.awt.*;
 public class Main {
     public static void main(String[] args) {
         Login login = new Login();
-
-
         ModelLogin model = new ModelLogin();
-
         ControllerLogin controller = new ControllerLogin(login, model);
 
         login.pack();

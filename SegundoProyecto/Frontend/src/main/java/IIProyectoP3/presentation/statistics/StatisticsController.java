@@ -3,6 +3,8 @@ package IIProyectoP3.presentation.statistics;
 import IIProyectoP3.logic.ReservationQueryService;
 
 import java.time.LocalDate;
+
+import IIProyectoP3.logic.ServiceProxy;
 import domain.CategoryStatistics;
 
 
@@ -11,7 +13,7 @@ import domain.CategoryStatistics;
 public class StatisticsController {
     private StatisticsView view;
     private StatisticsModel model;
-    private final ReservationQueryService queryService = new ReservationQueryService();
+    //private final ReservationQueryService queryService = new ReservationQueryService();
 
     public StatisticsController(StatisticsView view, StatisticsModel model) {
         this.view = view;
@@ -23,7 +25,7 @@ public class StatisticsController {
 
     public void cargarRecursos(LocalDate desde, LocalDate hasta){
         try{
-            model.setCategoryStats(queryService.getResourceStatistics(desde,hasta));
+            model.setCategoryStats(ServiceProxy.instance().getResourceStatistics(desde,hasta));
         } catch (Exception e){
             throw new RuntimeException(e.getMessage());
         }
@@ -31,7 +33,7 @@ public class StatisticsController {
 
     public void cargarActividades(LocalDate desde, LocalDate hasta){
         try{
-            model.setActivityStats(queryService.getActivityStatistics(desde,hasta));
+            model.setActivityStats(ServiceProxy.instance().getActivityStatistics(desde,hasta));
         } catch (Exception e){
             throw new RuntimeException(e.getMessage());
         }
