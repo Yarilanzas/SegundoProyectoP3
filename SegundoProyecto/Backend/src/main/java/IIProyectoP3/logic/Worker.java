@@ -58,7 +58,6 @@ public class Worker {
         continuar = false;
         try { s.close();} catch (Exception ignored) {}
         try {if (as != null) as.close();} catch (Exception ignored) {}
-        srv.remove(this);
         System.out.println("Conexion cerrada...");
     }
 

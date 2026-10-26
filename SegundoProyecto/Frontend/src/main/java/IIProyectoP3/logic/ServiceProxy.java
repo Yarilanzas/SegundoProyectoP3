@@ -454,13 +454,16 @@ public class ServiceProxy implements IService {
     @Override
     public void stop() {
         try {
-            os.writeInt(Protocol.DISCONNECT);
-            os.flush();
-            if (sS != null && !sS.isClosed()) {
-                sS.close();
-            }
+            disconnect();
         } catch (Exception e) {
-            System.err.println("Error al cerrar el Socket del cliente: " + e.getMessage());
+            System.exit(-1);
         }
+    }
+
+    private void disconnect() throws Exception {
+        os.writeInt(Protocol.DISCONNECT);
+        os.flush();
+        sS.shutdownOutput();
+        sS.close();
     }
 }

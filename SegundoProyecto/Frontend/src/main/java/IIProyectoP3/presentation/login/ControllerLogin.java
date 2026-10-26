@@ -14,6 +14,8 @@ import IIProyectoP3.presentation.reservations.*;
 import IIProyectoP3.presentation.resource.*;
 import IIProyectoP3.presentation.scheduling.*;
 import IIProyectoP3.presentation.statistics.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -78,12 +80,11 @@ public class ControllerLogin {
         //funcionarios
         EmployeeModel empModel = new EmployeeModel();
         EmployeeView empView = new EmployeeView();
-        EmployeeController empController = new EmployeeController(empModel,empView);
+        EmployeeController empController = new EmployeeController(empModel, empView);
         ImageIcon iconEmp = new ImageIcon(getClass().getResource("/images/employee.png"));
         tabbedPane.addTab("Funcionarios", iconEmp, empView.getPanel());
         //tabbedPane.addTab("Funcionarios", empView.getPanel());
         //tabbedPane.setIconAt(1, new ImageIcon(getClass().getResource("/employee.png")));
-
 
 
         // Categorías
@@ -111,7 +112,7 @@ public class ControllerLogin {
         ActivityModel actModel = new ActivityModel();
         ActivityView actView = new ActivityView();
         ActivityController actController = new ActivityController(actView, actModel);
-        ImageIcon iconView= new ImageIcon(getClass().getResource("/images/activities.png"));
+        ImageIcon iconView = new ImageIcon(getClass().getResource("/images/activities.png"));
         tabbedPane.addTab("Actividades", iconView, actView.getPanel());
 
         // Estadísticas
@@ -136,8 +137,21 @@ public class ControllerLogin {
         adminFrame.setSize(900, 700);
         adminFrame.setLocationRelativeTo(null);
         adminFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+       // adminFrame.setVisible(true);
+        adminFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); //se le dice a java que cuando el user aprete x no se cierre de golpe todo sino que se ejecute el listener de cierre primero
+        adminFrame.addWindowListener(new java.awt.event.WindowAdapter() { // observador que ve todos los eventos de la ventana
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) { // este es el metodo que dice que hacer cuando se apreta x
+                try {
+                    ServiceProxy.instance().stop(); //llama al metofo stop de proxy que para llame al backend y pare las ejecucioens
+                } catch (Exception ignored) {}
+                System.exit(0);
+            }
+        });
+
         adminFrame.setVisible(true);
     }
+
 
 
     private void buildEmployeeWindow() {
@@ -178,6 +192,26 @@ public class ControllerLogin {
         employeeFrame.setSize(900, 700);
         employeeFrame.setLocationRelativeTo(null);
         employeeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //employeeFrame.setVisible(true);
+
+
+        employeeFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        employeeFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                try {
+                    ServiceProxy.instance().stop(); // Envía DISCONNECT y cierra el Socket
+                } catch (Exception ignored) {}
+                System.exit(0);
+            }
+        });
+
         employeeFrame.setVisible(true);
+
+
+
     }
+
+
+
 }

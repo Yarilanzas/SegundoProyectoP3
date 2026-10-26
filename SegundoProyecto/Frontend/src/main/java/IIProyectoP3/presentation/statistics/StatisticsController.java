@@ -8,8 +8,6 @@ import IIProyectoP3.logic.ServiceProxy;
 import domain.CategoryStatistics;
 
 
-
-
 public class StatisticsController {
     private StatisticsView view;
     private StatisticsModel model;

@@ -1,10 +1,14 @@
 package IIProyectoP3.presentation.login;
 
+import IIProyectoP3.logic.ServiceProxy;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Login extends JDialog implements PropertyChangeListener {
     private JPanel contentPane;
@@ -21,6 +25,16 @@ public class Login extends JDialog implements PropertyChangeListener {
     public Login() {
         setContentPane(contentPane);
         setModal(true);
+
+
+
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                onCancel();
+            }
+        });
 
         ingresarButton.addActionListener(new ActionListener() {
 
@@ -70,6 +84,13 @@ public class Login extends JDialog implements PropertyChangeListener {
         });
     }
 
+    private void onCancel() {
+        try {
+            ServiceProxy.instance().stop();
+        } catch (Exception ignored) {}
+        System.exit(0);
+    }
+
     public void setController(ControllerLogin controller) {
         this.controller = controller;
     }
@@ -83,9 +104,7 @@ public class Login extends JDialog implements PropertyChangeListener {
         model.addPropertyChangeListener(this);
     }
 
-    private void onCancel() {
-        dispose();
-    }
+
 
     private boolean validateJTextField(JTextField name) {
         return !name.getText().trim().isEmpty();
