@@ -73,15 +73,9 @@ public class ResourceController {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    public void saveResource(Resource r){
-        try{
+    public void saveResource(Resource r) throws Exception{
             ServiceProxy.instance().resourceSave(r);
             model.setResources(ServiceProxy.instance().resourcesFindAll());
-
-        }
-        catch (Exception e) {
-        JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
     }
 
     public void clear(){

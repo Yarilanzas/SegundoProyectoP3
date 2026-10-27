@@ -17,6 +17,7 @@ import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import domain.Employee;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.util.List;
@@ -33,7 +34,11 @@ public class EmployeeController {
         view.setController(this);
         view.setModel(model);
 
-        list();
+        try {
+            list();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public void list() {

@@ -53,14 +53,9 @@ public class CategoryController {
         }
     }
 
-    public void saveCategory(Category category) {
-        try {
+    public void saveCategory(Category category) throws Exception {
             ServiceProxy.instance().categorySave(category);
             this.cargarCategorias();
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
     }
 
     public void edit(int row) {
