@@ -159,8 +159,8 @@ public class Worker {
                             break;
                         case Protocol.CATEGORY_FIND_BY_DESC:
                             try {
-                                Category c = categoryService.findByDesc((String) is.readObject());
-                                os.writeObject(new Response(Protocol.ERROR_NO_ERROR, c, null));
+                                List<Category> lc = categoryService.findByDescription((String) is.readObject());
+                                os.writeObject(new Response(Protocol.ERROR_NO_ERROR, lc, null));
                             } catch (Exception ex) {
                                 os.writeObject(new Response(Protocol.ERROR_ERROR, null, ex.getMessage()));
                             }

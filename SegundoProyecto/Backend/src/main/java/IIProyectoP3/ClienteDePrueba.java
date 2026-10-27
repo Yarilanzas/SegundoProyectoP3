@@ -202,7 +202,8 @@ public class ClienteDePrueba {
         os.writeObject("Categoria de prueba");
         os.flush();
         r = (Response) is.readObject();
-        Category encontrada = (Category) r.getData();
+        List<Category> encontradas = (List<Category>) r.getData();
+        Category encontrada = encontradas.isEmpty() ? null : encontradas.get(0);
         if (encontrada == null) {
             System.out.println("No se encontró la categoría recién creada");
         } else {

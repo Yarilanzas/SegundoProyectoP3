@@ -16,7 +16,6 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import domain.Employee;
-import IIProyectoP3.logic.EmployeeService;
 
 import java.awt.*;
 import java.io.File;
@@ -69,7 +68,7 @@ public class EmployeeController {
     }
 
     public void delete(String id) throws Exception {
-        ServiceProxy.instance().categoryDelete(id);
+        ServiceProxy.instance().employeeDelete(id);
         list();
         model.setCurrent(new Employee());
     }

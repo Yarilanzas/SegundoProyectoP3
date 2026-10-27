@@ -24,6 +24,7 @@ public class CategoryService {
             return null;
         }
     }
+
     public Category findByDesc(String des)throws Exception{
         List<Category> categories = categoryDAO.findbyDescription(des);
         for (Category c :categories){
@@ -34,9 +35,9 @@ public class CategoryService {
         return null;
     }
 
-   /* public List<Category> findByDescription(String descripcion) throws Exception{
+    public List<Category> findByDescription(String descripcion) throws Exception{
         return categoryDAO.findbyDescription(descripcion);
-    }*/
+    }
 
     public void save(Category categoria) throws Exception {
         if (categoria.getDescription() == null || categoria.getDescription().trim().isEmpty()) {

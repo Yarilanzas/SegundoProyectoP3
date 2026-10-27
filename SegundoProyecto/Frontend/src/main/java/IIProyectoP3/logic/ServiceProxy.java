@@ -26,6 +26,7 @@ public class ServiceProxy implements IService {
         try {
             sS = new Socket(Protocol.SERVER, Protocol.PORT); //conexion por red al servidor
             os = new ObjectOutputStream(sS.getOutputStream());//camino para enviar solicitudes al backend
+            os.flush();
             is = new ObjectInputStream(sS.getInputStream());//camino para recibir cosas del backend
             //envía un código inicial para identificarse o sincronizarse
             //el lo crea
@@ -63,7 +64,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (User) response.getData();
         } else {
-            throw new Exception("No se pudo iniciar sesion");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -87,7 +88,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
 
         } else {
-            throw new Exception("No se pudo cambiar la contraseña ");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -96,7 +97,7 @@ public class ServiceProxy implements IService {
         try {
             os.writeInt(Protocol.LOGOUT);
             os.flush();
-            sS.close();
+            is.readObject(); //lee el response del worker, cerrar la conexión ya lo hace stop() con DISCONNECT
         } catch (Exception e) {
             System.err.println("No se pudo cerrar sesion");
         }
@@ -114,10 +115,11 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (List<Employee>) response.getData();
         } else {
-            throw new Exception("No se pudieron cargar los empleados");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
+    @Override
     public Employee employeeFindbyId(String id) throws Exception {
         os.writeInt(Protocol.EMPLOYEE_FIND_BY_ID);
         os.writeObject(id);
@@ -128,13 +130,12 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (Employee) response.getData();
         } else {
-            throw new Exception("No se encontró empleado");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
+    @Override
     public List<Employee> employeeFindbyName(String name) throws Exception {
-
-
         os.writeInt(Protocol.EMPLOYEE_FIND_BY_NAME);
         os.writeObject(name);
         os.flush();
@@ -143,7 +144,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (List<Employee>) response.getData();
         } else {
-            throw new Exception("No se encontraron empleados con ese nombre");
+            throw new Exception(response.getErrorMessage());
 
         }
 
@@ -158,7 +159,7 @@ public class ServiceProxy implements IService {
 
         Response response = (Response) is.readObject();
         if (response.getStatus() != Protocol.ERROR_NO_ERROR) {
-            throw new Exception("No se pudo guardar el empleado");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -170,7 +171,7 @@ public class ServiceProxy implements IService {
 
         Response response = (Response) is.readObject();
         if (response.getStatus() != Protocol.ERROR_NO_ERROR) {
-            throw new Exception("No se pudo eliminar el empleado");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -185,7 +186,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (List<Category>) response.getData();
         } else {
-            throw new Exception("No se encontraron categorías");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -199,7 +200,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (Category) response.getData();
         } else {
-            throw new Exception("No se encontró la categoría solicitada");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -213,7 +214,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (List<Category>) response.getData();
         } else {
-            throw new Exception("No se encontraron categorías con esa descripción");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -225,7 +226,7 @@ public class ServiceProxy implements IService {
 
         Response response = (Response) is.readObject();
         if (response.getStatus() != Protocol.ERROR_NO_ERROR) {
-            throw new Exception("No se pudo guardar la categoría");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -237,7 +238,7 @@ public class ServiceProxy implements IService {
 
         Response response = (Response) is.readObject();
         if (response.getStatus() != Protocol.ERROR_NO_ERROR) {
-            throw new Exception("No se pudo eliminar la categoría");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -252,7 +253,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (List<Resource>) response.getData();
         } else {
-            throw new Exception("No se encontraron recursos");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -266,7 +267,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (List<Resource>) response.getData();
         } else {
-            throw new Exception("No se encontraron recursos con esa descripción");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -280,7 +281,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (List<Resource>) response.getData();
         } else {
-            throw new Exception("No se encontraron recursos para esa categoría");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -292,7 +293,7 @@ public class ServiceProxy implements IService {
 
         Response response = (Response) is.readObject();
         if (response.getStatus() != Protocol.ERROR_NO_ERROR) {
-            throw new Exception("No se pudo guardar el recurso");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -304,7 +305,7 @@ public class ServiceProxy implements IService {
 
         Response response = (Response) is.readObject();
         if (response.getStatus() != Protocol.ERROR_NO_ERROR) {
-            throw new Exception("No se pudo actualizar el recurso");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -316,7 +317,7 @@ public class ServiceProxy implements IService {
 
         Response response = (Response) is.readObject();
         if (response.getStatus() != Protocol.ERROR_NO_ERROR) {
-            throw new Exception("No se pudo eliminar el recurso");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -333,7 +334,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (Reservation) response.getData();
         } else {
-            throw new Exception("No se pudo realizar la reservación");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -346,7 +347,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (List<Reservation>) response.getData();
         } else {
-            throw new Exception("No se encontraron reservaciones");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -360,7 +361,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (ReservaExtraccion) response.getData();
         } else {
-            throw new Exception("No se pudo extraer la información de la reservación");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -372,7 +373,7 @@ public class ServiceProxy implements IService {
 
         Response response = (Response) is.readObject();
         if (response.getStatus() != Protocol.ERROR_NO_ERROR) {
-            throw new Exception("No se pudo cancelar la reservación");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -384,7 +385,7 @@ public class ServiceProxy implements IService {
 
         Response response = (Response) is.readObject();
         if (response.getStatus() != Protocol.ERROR_NO_ERROR) {
-            throw new Exception("No se pudo eliminar la reservación");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -401,7 +402,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (CalendarData) response.getData();
         } else {
-            throw new Exception("No se pudieron cargar los datos del calendario");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -415,7 +416,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (ActivityData) response.getData();
         } else {
-            throw new Exception("No se pudieron obtener los horarios semanales");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -430,7 +431,7 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (List<CategoryStatistics>) response.getData();
         } else {
-            throw new Exception("No se pudieron obtener las estadísticas de recursos");
+            throw new Exception(response.getErrorMessage());
         }
     }
 
@@ -445,11 +446,9 @@ public class ServiceProxy implements IService {
         if (response.getStatus() == Protocol.ERROR_NO_ERROR) {
             return (List<ActivityStatistics>) response.getData();
         } else {
-            throw new Exception("No se pudieron obtener las estadísticas de actividad");
+            throw new Exception(response.getErrorMessage());
         }
     }
-
-    ///
 
     @Override
     public void stop() {

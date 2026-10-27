@@ -91,6 +91,7 @@ public class CategoryController {
             JOptionPane.showMessageDialog(null, "Error al refrescar la lista: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     public void searchDesc(String desc) {
         try {
             List<Category> categorias = ServiceProxy.instance().categoryFindbyDesc(desc);
@@ -101,15 +102,6 @@ public class CategoryController {
             throw new RuntimeException(e.getMessage());
         }
     }
-
-    /*public void searchById(String id) {
-        try{
-            Category c= categoryService.findByDesc(desc);
-            model.setList(c != null ? List.of(c) : List.of());
-        }catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }*/
 
     public void print() throws Exception {
         String dest = "categorias.pdf";
