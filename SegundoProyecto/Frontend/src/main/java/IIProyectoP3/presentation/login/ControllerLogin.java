@@ -1,6 +1,9 @@
 package IIProyectoP3.presentation.login;
 
 import IIProyectoP3.logic.ServiceProxy;
+import IIProyectoP3.presentation.alertas.AlertasController;
+import IIProyectoP3.presentation.alertas.AlertasModel;
+import IIProyectoP3.presentation.alertas.AlertasView;
 import domain.IService;
 import domain.User;
 import IIProyectoP3.logic.LoginService;
@@ -158,6 +161,13 @@ public class ControllerLogin {
         JFrame employeeFrame = new JFrame("Panel de Funcionario");
         JTabbedPane tabbedPane = new JTabbedPane();
 
+        AlertasView alertasView = new AlertasView();
+        AlertasModel alertasModel = new AlertasModel();
+        AlertasController alertasController = new AlertasController(alertasView, alertasModel);
+
+        JPanel alertasPanel = alertasView.getPanel1();
+        alertasPanel.setBorder(BorderFactory.createTitledBorder("Alertas"));
+
         // Reservas
         ReservationModel resModel = new ReservationModel();
         ReservationView resView = new ReservationView();
@@ -188,28 +198,29 @@ public class ControllerLogin {
        // tabbedPane.addTab("Estadísticas", statView.getPanel());
 
         // vista
+        // 3. Aplicar la técnica del profesor (Layout null y setBounds)
+        employeeFrame.setLayout(null);
         employeeFrame.add(tabbedPane);
+        employeeFrame.add(alertasPanel);
+
+        tabbedPane.setBounds(10, 10, 680, 630);
+        alertasPanel.setBounds(700, 10, 170, 630);
+
         employeeFrame.setSize(900, 700);
         employeeFrame.setLocationRelativeTo(null);
-        employeeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //employeeFrame.setVisible(true);
-
-
         employeeFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         employeeFrame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
                 try {
-                    ServiceProxy.instance().stop(); // Envía DISCONNECT y cierra el Socket
+                    alertasController.stop();
+                    ServiceProxy.instance().stop();
                 } catch (Exception ignored) {}
                 System.exit(0);
             }
         });
 
         employeeFrame.setVisible(true);
-
-
-
     }
 
 

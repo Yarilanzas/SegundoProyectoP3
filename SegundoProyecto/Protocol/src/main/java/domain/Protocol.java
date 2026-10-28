@@ -53,6 +53,8 @@ public class Protocol {
     public static final int ERROR_NO_ERROR=0;
     public static final int ERROR_ERROR=1;
 
+
+
     public static final int DISCONNECT=99;
 
 
