@@ -15,8 +15,8 @@ public class AlertasTableModel extends AbstractTableModel<Reservation> {
     public static final int DESCRIPCION = 2;
 
 
-    private final Icon iconVer = new ImageIcon(getClass().getResource("images/iconVer.png"));
-    private final Icon iconDesc = new ImageIcon(getClass().getResource("images/iconDesc.png"));
+    private final Icon iconVer = new ImageIcon(getClass().getResource("/images/iconVer.png"));
+    private final Icon iconDesc = new ImageIcon(getClass().getResource("/images/iconDesc.png"));
 
     public AlertasTableModel(int[] cols, List<Reservation> rows) {
         super(cols, rows);

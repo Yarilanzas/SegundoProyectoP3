@@ -22,6 +22,8 @@ public class AlertasController implements SocketListener {
         view.setController(this);
         view.setModel(model);
 
+        this.model.addPropertyChangeListener(view);
+
         try{
             monitor = new SocketMonitor(this, ((ServiceProxy)ServiceProxy.instance()).getSid());
             monitor.start();
@@ -38,6 +40,7 @@ public class AlertasController implements SocketListener {
         List<Reservation> reservaciones = new ArrayList<>(model.getList());
         reservaciones.add(0, r);
         model.setList(reservaciones);
+      // System.out.println("Alerta recibida: ");
     }
 
 
