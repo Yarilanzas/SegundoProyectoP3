@@ -70,9 +70,10 @@ public class ServiceProxy implements IService {
 
 
     @Override
-    public void changePassword(String actual, String nueva, String confirmacion) throws Exception {
+    public void changePassword(String id, String actual, String nueva, String confirmacion) throws Exception {
         //parametrod
         os.writeInt(Protocol.USER_CHANGE_PASSWORD);//manda el numero etiqueta prestablecido para saber qu ehay que cambiar la contraseña
+        os.writeObject(id);
         os.writeObject(actual);
         os.writeObject(nueva);
         os.writeObject(confirmacion);

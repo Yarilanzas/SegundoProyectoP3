@@ -40,7 +40,6 @@ public class ChangePasswordService {
             throw new Exception("La contraseña actual es incorrecta");
         }
 
-
         userDAO.changePassword(userActualizado.getId(), nueva);
     }
 }

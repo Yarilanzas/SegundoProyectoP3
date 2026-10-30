@@ -23,6 +23,6 @@ public class ChangePasswordController {
     }
 
     public void change(String actual, String nueva, String confirmacion) throws Exception {
-        ServiceProxy.instance().changePassword(actual, nueva, confirmacion);
+        ServiceProxy.instance().changePassword(currentUserId, actual, nueva, confirmacion);
     }
 }

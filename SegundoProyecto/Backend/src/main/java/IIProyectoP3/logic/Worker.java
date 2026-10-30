@@ -87,11 +87,11 @@ public class Worker {
                             break;
                         case Protocol.USER_CHANGE_PASSWORD:
                             try {
+                                String id = (String) is.readObject();
                                 String actual = (String) is.readObject();
                                 String nueva = (String) is.readObject();
                                 String confirmacion = (String) is.readObject();
-                                if (user == null) throw new Exception("Debe iniciar sesión");
-                                changePasswordService.changePassword(user.getId(), actual, nueva, confirmacion);
+                                changePasswordService.changePassword(id, actual, nueva, confirmacion);
                                 os.writeObject(new Response(Protocol.ERROR_NO_ERROR, null, null));
                             } catch (Exception ex) {
                                 os.writeObject(new Response(Protocol.ERROR_ERROR, null, ex.getMessage()));

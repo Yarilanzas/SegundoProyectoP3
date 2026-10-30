@@ -8,7 +8,7 @@ public interface IService {
     //login
     User login(String id, String password) throws Exception;
     void logout() throws Exception;
-    void changePassword(String actual,String nueva, String confirmacion) throws Exception;
+    void changePassword(String id, String actual,String nueva, String confirmacion) throws Exception;
 
     //employees
     List<Employee> employeeFindAll() throws Exception;
